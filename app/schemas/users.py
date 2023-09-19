@@ -9,6 +9,7 @@ class UserBase(BaseModel):
         title="Must start with '+7' and followed by 10 numbers",
         pattern="^\+7[0-9]{10}$"
     )
+    is_active: bool = Field(default=True, title="User is_active status")
 
 
 class UserCreate(UserBase):
@@ -22,7 +23,6 @@ class UserCreate(UserBase):
 class UserInDB(UserBase):
     hashed_password: str
     id: int = Field(..., title="User id")
-    is_active: bool = Field(default=True, title="User is_active status")
 
     class Config:
         from_attributes = True
