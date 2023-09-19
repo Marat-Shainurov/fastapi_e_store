@@ -2,7 +2,9 @@ from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
-    full_name: str = Field(..., title="User full name")
+    name: str = Field(..., title="User name")
+    last_name: str = Field(..., title="User last name")
+    username: str = Field(..., title="User username")
     email: str = Field(..., title="User email")
     phone: str = Field(
         ...,
