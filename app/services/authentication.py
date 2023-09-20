@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.schemas import UserInDB
-from app.services import get_user
-from app.services.tokens import verify_password
+from app.services import get_user, verify_password
 
 
 def authenticate_user(db: Session, username: str, password: str) -> UserInDB | bool:

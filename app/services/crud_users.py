@@ -7,22 +7,10 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database.db import get_db
 from app.models import User
-from app.schemas import UserCreate, TokenData, UserInDB
+from app.schemas import UserCreate, TokenData, UserInDB, UserBase
 from app.services.tokens import get_password_hashed, ALGORITHM, SECRET_KEY
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/token')
-
-
-def add_user(db: Session, user: UserCreate):
-    hashed_pwd = get_password_hashed(plain_password=user.password)
-    new_user = User(
-        name=user.name, last_name=user.last_name, username=user.username, email=user.email, phone=user.phone,
-        hashed_password=hashed_pwd, is_active=user.is_active
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
 
 
 def get_user(db: Session, username: str) -> UserInDB | None:
@@ -58,13 +46,30 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
     return current_user
 
 
-def get_users():
-    pass
+def add_user(db: Session, user: UserCreate):
+    hashed_pwd = get_password_hashed(plain_password=user.password)
+    new_user = User(
+        name=user.name, last_name=user.last_name, username=user.username, email=user.email, phone=user.phone,
+        hashed_password=hashed_pwd, is_active=user.is_active
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
 
 
-def update_user():
-    pass
+def get_users(db: Session):
+    return db.query(User).all()
 
 
-def delete_user():
-    pass
+def update_user(db: Session, username: str, user_to_update: UserBase) -> UserInDB:
+    db.query(User).filter(User.username == username).update(values={**user_to_update.model_dump()})
+    updated_user = db.query(User).filter(User.username == username).first()
+    db.commit()
+    db.refresh(updated_user)
+    return UserInDB(**updated_user.__dict__)
+
+
+def destroy_user(db: Session, username: str):
+    db.query(User).filter(User.username == username).delete(synchronize_session=False)
+    db.commit()
