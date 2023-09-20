@@ -6,7 +6,7 @@ class Token(BaseModel):
     token_type: str
 
 
-class TokenData(Token):
+class TokenData(BaseModel):
     username: str | None = None
 
 

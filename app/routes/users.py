@@ -1,14 +1,14 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.config import SessionLocal
 from app.schemas import UserCreate, UserInDB, Token
 from app.services.authentication import authenticate_user
-from app.services.crud_users import add_user
+from app.services.crud_users import add_user, oauth2_scheme, get_current_active_user
 from app.services.tokens import create_access_token, get_password_hashed, ACCESS_TOKEN_EXPIRES_MINUTES
 from app.database.db import get_db
 
@@ -24,6 +24,11 @@ router = APIRouter(
 async def create_users(user: UserCreate, db: Session = Depends(get_db)):
     new_user = add_user(db=db, user=user)
     return new_user
+
+
+@router.get("/read/request-user")
+async def read_request_user(request_user: UserInDB = Depends(get_current_active_user)):
+    return request_user
 
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_201_CREATED)

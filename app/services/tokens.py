@@ -5,7 +5,6 @@ from jose import jwt
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 SECRET_KEY = 'topsecretkey'
 ALGORITHM = 'HS256'
