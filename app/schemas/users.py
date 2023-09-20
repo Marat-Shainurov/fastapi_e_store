@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from app.schemas import Product
+
 
 class UserBase(BaseModel):
     name: str = Field(..., title="User name")
@@ -12,6 +14,7 @@ class UserBase(BaseModel):
         pattern="^\+7[0-9]{10}$"
     )
     is_active: bool = Field(default=True, title="User is_active status")
+    products: list[Product] = Field(default=[], title="User's products")
 
 
 class UserCreate(UserBase):

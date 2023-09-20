@@ -1,4 +1,5 @@
-from .users import UserBase, UserCreate, UserInDB
+from .products import Product
 from .tokens import Token, TokenData
+from .users import UserBase, UserCreate, UserInDB
 
-__all__ = ['UserBase', 'UserCreate', 'UserInDB', 'Token', 'TokenData']
+__all__ = ['Product', 'UserBase', 'UserCreate', 'UserInDB', 'Token', 'TokenData']
