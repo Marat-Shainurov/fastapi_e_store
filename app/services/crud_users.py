@@ -1,3 +1,5 @@
+from typing import Type
+
 from fastapi import Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -13,14 +15,13 @@ from app.services.tokens import get_password_hashed, ALGORITHM, SECRET_KEY
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/token')
 
 
-def get_user(db: Session, username: str) -> UserInDB | None:
+def get_user(db: Session, username: str) -> Type[User]:
     user = db.query(models.User).filter(User.username == username).first()
     if user:
-        return UserInDB(**user.__dict__)
-    return
+        return user
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Type[User]:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -40,13 +41,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
+async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
     if not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return current_user
 
 
-def add_user(db: Session, user: UserCreate):
+def add_user(db: Session, user: UserCreate) -> User:
     hashed_pwd = get_password_hashed(plain_password=user.password)
     new_user = User(
         name=user.name, last_name=user.last_name, username=user.username, email=user.email, phone=user.phone,
@@ -58,18 +59,24 @@ def add_user(db: Session, user: UserCreate):
     return new_user
 
 
-def get_users(db: Session):
+def get_users(db: Session) -> list[Type[User]]:
     return db.query(User).all()
 
 
-def update_user(db: Session, username: str, user_to_update: UserBase) -> UserInDB:
-    db.query(User).filter(User.username == username).update(values={**user_to_update.model_dump()})
-    updated_user = db.query(User).filter(User.username == username).first()
-    db.commit()
-    db.refresh(updated_user)
-    return UserInDB(**updated_user.__dict__)
+def update_user(db: Session, username: str, user_to_update: UserBase) -> Type[User]:
+    user = db.query(User).filter(User.username == username)
+    if user:
+        user.update(values={**user_to_update.model_dump()})
+        updated_user = db.query(User).filter(User.username == username).first()
+        db.commit()
+        db.refresh(updated_user)
+        return updated_user
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="No user found"
+    )
 
 
-def destroy_user(db: Session, username: str):
+def destroy_user(db: Session, username: str) -> None:
     db.query(User).filter(User.username == username).delete(synchronize_session=False)
     db.commit()
