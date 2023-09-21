@@ -6,7 +6,7 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models import Product
-from app.schemas import ProductBase, UserInDB, ProductCreate
+from app.schemas import ProductBase, UserInDB, ProductCreate, ProductBaseUpdate
 
 
 def add_product(db: Session, product: ProductCreate, current_user: UserInDB) -> Product:
@@ -51,6 +51,22 @@ def put_product(product: ProductBase, product_id: int, db: Session) -> Type[Prod
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No product found"
         )
+
+
+def patch_product(product_id: int, product: ProductBaseUpdate, db: Session):
+    stored_product = db.query(Product).filter_by(id=product_id).one_or_none()
+    if stored_product is not None:
+        stored_data_schema = ProductBase(**stored_product.__dict__)
+    else:
+        stored_data_schema = ProductBase()
+    update_data = product.model_dump(exclude_unset=True)
+    updated_product_schema = stored_data_schema.model_copy(update=update_data)
+    product_to_update_db = db.query(Product).filter_by(id=product_id)
+    product_to_update_db.update(values={**updated_product_schema.model_dump()})
+    db.commit()
+    db.refresh(product_to_update_db.one_or_none())
+    product_to_update_db_after = db.query(Product).filter_by(id=product_id).one_or_none()
+    return product_to_update_db_after
 
 
 def destroy_product(product_id: int, db: Session):
