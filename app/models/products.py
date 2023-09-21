@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, Float, ForeignKey
-from sqlalchemy.orm import mapped_column, relationship
+from sqlalchemy.orm import relationship
 
 from app.database.config import Base
 
@@ -12,6 +12,6 @@ class Product(Base):
     price = Column(Float)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    is_active = Column(DateTime)
+    is_active = Column(Boolean)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="products")
