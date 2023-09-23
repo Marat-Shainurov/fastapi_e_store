@@ -6,9 +6,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
-from app.schemas import UserCreate, UserInDB, Token, UserBase
-from app.services import add_user, get_current_active_user, get_users, update_user, destroy_user, create_access_token, \
-    authenticate_user
+from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate
+from app.services import add_user, get_current_active_user, get_users, put_user, destroy_user, create_access_token, \
+    authenticate_user, get_user, patch_user
 from app.services.tokens import ACCESS_TOKEN_EXPIRES_MINUTES
 
 router = APIRouter(
@@ -54,10 +54,22 @@ async def read_request_user(current_user: UserInDB = Depends(get_current_active_
     return current_user
 
 
+@router.get("/{username}", response_model=UserBase, status_code=status.HTTP_200_OK)
+async def retrieve_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
+                        db: Session = Depends(get_db)):
+    return get_user(db=db, username=username)
+
+
 @router.put("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
-async def put_user(username: str, user_to_update: UserBase, current_user: UserInDB = Depends(get_current_active_user),
-                   db: Session = Depends(get_db)):
-    return update_user(db=db, username=username, user_to_update=user_to_update)
+async def update_user(username: str, user: UserBase, current_user: UserInDB = Depends(get_current_active_user),
+                      db: Session = Depends(get_db)):
+    return put_user(db=db, username=username, user_to_update=user)
+
+
+@router.patch("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
+async def partial_update_user(username: str, user: UserBaseUpdate, db: Session = Depends(get_db),
+                              current_user: UserInDB = Depends(get_current_active_user), ):
+    return patch_user(db=db, user_to_update=user, username=username)
 
 
 @router.delete("/{username}", status_code=status.HTTP_204_NO_CONTENT)

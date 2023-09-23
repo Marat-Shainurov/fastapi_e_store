@@ -37,8 +37,9 @@ async def update_product(product: ProductBase, product_id: int,
 
 
 @router.patch("/{product_id}", response_model=ProductBase)
-async def partial_update(product: ProductBaseUpdate, product_id: int,
-                         current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def partial_update_product(
+        product: ProductBaseUpdate, product_id: int, current_user: UserInDB = Depends(get_current_active_user),
+        db: Session = Depends(get_db)):
     return patch_product(product_id=product_id, product=product, db=db)
 
 

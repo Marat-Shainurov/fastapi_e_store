@@ -65,8 +65,7 @@ def patch_product(product_id: int, product: ProductBaseUpdate, db: Session):
     product_to_update_db.update(values={**updated_product_schema.model_dump()})
     db.commit()
     db.refresh(product_to_update_db.one_or_none())
-    product_to_update_db_after = db.query(Product).filter_by(id=product_id).one_or_none()
-    return product_to_update_db_after
+    return db.query(Product).filter_by(id=product_id).one_or_none()
 
 
 def destroy_product(product_id: int, db: Session):

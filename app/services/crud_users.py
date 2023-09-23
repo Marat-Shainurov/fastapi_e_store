@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database.db import get_db
 from app.models import User
-from app.schemas import UserCreate, TokenData, UserInDB, UserBase
+from app.schemas import UserCreate, TokenData, UserInDB, UserBase, UserBaseUpdate
 from app.services.tokens import get_password_hashed, ALGORITHM, SECRET_KEY
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/token')
@@ -63,7 +63,7 @@ def get_users(db: Session) -> list[Type[User]]:
     return db.query(User).all()
 
 
-def update_user(db: Session, username: str, user_to_update: UserBase) -> Type[User]:
+def put_user(db: Session, username: str, user_to_update: UserBase) -> Type[User]:
     user = db.query(User).filter(User.username == username)
     if user:
         user.update(values={**user_to_update.model_dump()})
@@ -75,6 +75,21 @@ def update_user(db: Session, username: str, user_to_update: UserBase) -> Type[Us
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="No user found"
     )
+
+
+def patch_user(db: Session, username, user_to_update: UserBaseUpdate) -> Type[User]:
+    stored_user = db.query(User).filter_by(username=username).one_or_none()
+    if stored_user:
+        stored_data_schema = UserBase(**stored_user.__dict__)
+    else:
+        stored_data_schema = UserBase()
+    update_data = user_to_update.model_dump(exclude_unset=True)
+    updated_user_schema = stored_data_schema.model_copy(update=update_data)
+    user_to_update_db = db.query(User).filter_by(username=username)
+    user_to_update_db.update(values={**updated_user_schema.model_dump()})
+    db.commit()
+    db.refresh(user_to_update_db.one_or_none())
+    return db.query(User).filter_by(username=username).one_or_none()
 
 
 def destroy_user(db: Session, username: str) -> None:

@@ -31,3 +31,12 @@ class UserInDB(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class UserBaseUpdate(BaseModel):
+    name: str | None = None
+    last_name: str | None = None
+    username: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    is_active: bool | None = None
