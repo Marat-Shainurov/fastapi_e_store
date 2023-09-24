@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.schemas.baskets import BasketBase
+
 
 class ProductCreate(BaseModel):
     name: str = Field(..., title="Product name")
@@ -18,6 +20,7 @@ class ProductBase(ProductCreate):
 
 class ProductInDb(ProductBase):
     id: int = Field(..., title="Product id")
+    baskets: list = Field(default=[], title="Baskets the product in")
 
 
 class ProductBaseUpdate(BaseModel):

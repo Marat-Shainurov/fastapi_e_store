@@ -24,7 +24,7 @@ async def read_products(current_user: UserInDB = Depends(get_current_active_user
     return get_products(db=db)
 
 
-@router.get("/{product_id}")
+@router.get("/{product_id}", response_model=ProductInDb)
 async def retrieve_product(product_id: int, current_user: UserInDB = Depends(get_current_active_user),
                            db: Session = Depends(get_db)):
     return get_product(db=db, product_id=product_id)
