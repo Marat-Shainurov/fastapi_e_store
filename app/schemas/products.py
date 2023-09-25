@@ -1,9 +1,7 @@
 from datetime import datetime
-from typing import Optional
+from typing import List
 
 from pydantic import BaseModel, Field
-
-from app.schemas.baskets import BasketBase
 
 
 class ProductCreate(BaseModel):
@@ -18,9 +16,14 @@ class ProductBase(ProductCreate):
     is_active: bool = Field(default=True, title="Product status")
 
 
+class BasketBase(BaseModel):
+    id: int
+    products: List[ProductBase]
+
+
 class ProductInDb(ProductBase):
     id: int = Field(..., title="Product id")
-    baskets: list = Field(default=[], title="Baskets the product in")
+    baskets: list[BasketBase] = Field(default=[], title="Baskets the product in")
 
 
 class ProductBaseUpdate(BaseModel):
