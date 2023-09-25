@@ -23,10 +23,29 @@ def create_basket_with_products(db: Session, products_to_add: list[int]) -> Bask
 
 
 # todo:
-#  1. delete_products_from_basket.
-#  2. check and configure the user-product deleting process
-#  3. Registration/email verification
+#  1. check and configure the user-product deleting process
+#  2. Registration/email verification
 
 
-def delete_products_from_basket(db: Session, products_to_add: list[int]):
-    pass
+def remove_products_from_basket(db: Session, basket_id: int, products_to_remove: list[int]):
+    basket = db.query(Basket).filter_by(id=basket_id).one_or_none()
+    if basket:
+        for p in products_to_remove:
+            product = db.query(Product).filter_by(id=p).one_or_none()
+            if product:
+                basket.products.remove(product)
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Product with {p} id not found")
+    db.commit()
+
+
+def destroy_basket(db: Session, basket_id: int):
+    basket = db.query(Basket).filter_by(id=basket_id).one_or_none()
+    if basket:
+        db.delete(basket)
+        db.commit()
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Basket {basket_id} not found"
+        )
