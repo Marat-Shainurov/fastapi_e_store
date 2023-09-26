@@ -93,5 +93,12 @@ def patch_user(db: Session, username, user_to_update: UserBaseUpdate) -> Type[Us
 
 
 def destroy_user(db: Session, username: str) -> None:
-    db.query(User).filter(User.username == username).delete(synchronize_session=False)
-    db.commit()
+    user = db.query(User).filter(User.username == username).one_or_none()
+    if user:
+        db.delete(user)
+        db.commit()
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"User {username} not found"
+        )

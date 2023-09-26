@@ -56,7 +56,7 @@ def get_baskets(db: Session):
     return baskets if baskets else []
 
 
-def destroy_basket(db: Session, basket_id: int):
+def destroy_basket(db: Session, basket_id: int) -> None:
     basket = db.query(Basket).filter_by(id=basket_id).one_or_none()
     if basket:
         db.delete(basket)

@@ -71,6 +71,13 @@ def patch_product(product_id: int, product: ProductBaseUpdate, db: Session):
     return db.query(Product).filter_by(id=product_id).one_or_none()
 
 
-def destroy_product(product_id: int, db: Session):
-    db.query(Product).filter(Product.id == product_id).delete(synchronize_session=False)
-    db.commit()
+def destroy_product(product_id: int, db: Session) -> None:
+    product = db.query(Product).filter(Product.id == product_id).one_or_none()
+    if product:
+        db.delete(product)
+        db.commit()
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Product {product_id} not found"
+        )

@@ -13,7 +13,7 @@ class Product(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     is_active = Column(Boolean)
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"))
     owner = relationship("User", back_populates="products")
 
     baskets = relationship("Basket", secondary=association_table, back_populates="products")

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from app.schemas import ProductInDb
+from app.schemas import ProductInBasket
 
 
 class UserBase(BaseModel):
@@ -27,7 +27,7 @@ class UserCreate(UserBase):
 class UserInDB(UserBase):
     hashed_password: str
     id: int = Field(..., title="User id")
-    products: list[ProductInDb] = Field(default=[], title="User's products")
+    products: list[ProductInBasket] = Field(default=[], title="User's products")
 
     class Config:
         from_attributes = True

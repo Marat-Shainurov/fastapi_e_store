@@ -12,7 +12,7 @@ class ProductCreate(BaseModel):
 class ProductBase(ProductCreate):
     created_at: datetime = Field(..., title="Creation date")
     updated_at: datetime = Field(..., title="Last update")
-    owner_id: int = Field(..., title="Product owner id")
+    owner_id: int | None = Field(..., title="Product owner id")
     is_active: bool = Field(default=True, title="Product status")
 
 
