@@ -62,7 +62,10 @@ def patch_product(product_id: int, product: ProductBaseUpdate, db: Session):
     update_data = product.model_dump(exclude_unset=True)
     updated_product_schema = stored_data_schema.model_copy(update=update_data)
     product_to_update_db = db.query(Product).filter_by(id=product_id)
-    product_to_update_db.update(values={**updated_product_schema.model_dump()})
+    try:
+        product_to_update_db.update(values={**updated_product_schema.model_dump()})
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid input for update")
     db.commit()
     db.refresh(product_to_update_db.one_or_none())
     return db.query(Product).filter_by(id=product_id).one_or_none()

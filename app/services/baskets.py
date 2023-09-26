@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi.exceptions import HTTPException
 from fastapi import status
+from typing import Type
 
 from app.models import Basket, Product
 
@@ -37,6 +38,22 @@ def remove_products_from_basket(db: Session, basket_id: int, products_to_remove:
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Product with {p} id not found")
     db.commit()
+    return db.query(Basket).filter_by(id=basket_id).one()
+
+
+def get_basket(db: Session, basket_id: int) -> Type[Basket]:
+    basket = db.query(Basket).filter_by(id=basket_id).one_or_none()
+    if basket is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Basket {basket_id} not found"
+        )
+    return basket
+
+
+def get_baskets(db: Session):
+    baskets = db.query(Basket).all()
+    return baskets if baskets else []
 
 
 def destroy_basket(db: Session, basket_id: int):

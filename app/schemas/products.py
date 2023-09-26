@@ -16,14 +16,20 @@ class ProductBase(ProductCreate):
     is_active: bool = Field(default=True, title="Product status")
 
 
-class BasketBase(BaseModel):
+class ProductInBasket(BaseModel):
+    id: int = Field(..., title="Product id")
+    name: str = Field(..., title="Product name")
+    price: float = Field(..., title="Product price")
+
+
+class BasketInDB(BaseModel):
     id: int
-    products: List[ProductBase]
+    products: List[ProductInBasket]
 
 
 class ProductInDb(ProductBase):
     id: int = Field(..., title="Product id")
-    baskets: list[BasketBase] = Field(default=[], title="Baskets the product in")
+    baskets: list[BasketInDB] = Field(default=[], title="Baskets the product in")
 
 
 class ProductBaseUpdate(BaseModel):

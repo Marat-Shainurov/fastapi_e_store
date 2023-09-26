@@ -19,7 +19,7 @@ async def create_product(
     return add_product(db=db, product=product, current_user=current_user)
 
 
-@router.get("/")
+@router.get("/", response_model=list[ProductInDb], status_code=status.HTTP_200_OK)
 async def read_products(current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return get_products(db=db)
 
@@ -30,13 +30,13 @@ async def retrieve_product(product_id: int, current_user: UserInDB = Depends(get
     return get_product(db=db, product_id=product_id)
 
 
-@router.put("/{product_id}", response_model=ProductBase)
+@router.put("/{product_id}", response_model=ProductBase, status_code=status.HTTP_200_OK)
 async def update_product(product: ProductBase, product_id: int,
                          current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return put_product(product=product, product_id=product_id, db=db)
 
 
-@router.patch("/{product_id}", response_model=ProductBase)
+@router.patch("/{product_id}", response_model=ProductBase, status_code=status.HTTP_200_OK)
 async def partial_update_product(
         product: ProductBaseUpdate, product_id: int, current_user: UserInDB = Depends(get_current_active_user),
         db: Session = Depends(get_db)):
