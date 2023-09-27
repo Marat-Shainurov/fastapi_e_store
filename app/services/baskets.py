@@ -70,8 +70,8 @@ def get_basket(db: Session, basket_id: int) -> Type[Basket]:
     return basket
 
 
-def get_baskets(db: Session):
-    baskets = db.query(Basket).all()
+def get_baskets(db: Session, offset: int, limit: int):
+    baskets = db.query(Basket).offset(offset).limit(limit).all()
     return baskets if baskets else []
 
 

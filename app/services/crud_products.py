@@ -25,8 +25,8 @@ def add_product(db: Session, product: ProductCreate, current_user: UserInDB) -> 
     return new_product
 
 
-def get_products(db: Session) -> list[Type[Product]]:
-    return db.query(Product).all()
+def get_products(db: Session, offset: int, limit: int) -> list[Type[Product]]:
+    return db.query(Product).offset(offset).limit(limit).all()
 
 
 def get_product(db: Session, product_id: int) -> Type[Product]:

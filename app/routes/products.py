@@ -20,8 +20,9 @@ async def create_product(
 
 
 @router.get("/", response_model=list[ProductInDb], status_code=status.HTTP_200_OK)
-async def read_products(current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    return get_products(db=db)
+async def read_products(offset: int = 0, limit: int = 100, current_user: UserInDB = Depends(get_current_active_user),
+                        db: Session = Depends(get_db)):
+    return get_products(db=db, offset=offset, limit=limit)
 
 
 @router.get("/{product_id}", response_model=ProductInDb)

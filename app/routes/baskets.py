@@ -40,8 +40,9 @@ async def read_basket(basket_id: int, db: Session = Depends(get_db),
 
 
 @router.get("/", response_model=list[BasketInDB], status_code=status.HTTP_200_OK, description="Baskets list")
-async def read_baskets(db: Session = Depends(get_db), current_user: UserInDB = Depends(get_current_active_user)):
-    return get_baskets(db=db)
+async def read_baskets(offset: int = 0, limit: int = 100,
+                       db: Session = Depends(get_db), current_user: UserInDB = Depends(get_current_active_user)):
+    return get_baskets(db=db, offset=offset, limit=limit)
 
 
 @router.delete("/{basket_id}", status_code=status.HTTP_204_NO_CONTENT, description="Basket id")

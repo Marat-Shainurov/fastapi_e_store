@@ -45,8 +45,9 @@ async def create_users(
 
 
 @router.get("/", response_model=list[UserInDB], status_code=status.HTTP_200_OK)
-async def read_users(current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    return get_users(db=db)
+async def read_users(offset: int = 0, limit: int = 100,
+                     current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    return get_users(db=db, offset=offset, limit=limit)
 
 
 @router.get("/current-user", status_code=status.HTTP_200_OK)

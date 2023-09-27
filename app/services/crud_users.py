@@ -59,8 +59,8 @@ def add_user(db: Session, user: UserCreate) -> User:
     return new_user
 
 
-def get_users(db: Session) -> list[Type[User]]:
-    return db.query(User).all()
+def get_users(db: Session, offset: int, limit: int) -> list[Type[User]]:
+    return db.query(User).offset(offset).limit(limit).all()
 
 
 def put_user(db: Session, username: str, user_to_update: UserBase) -> Type[User]:
