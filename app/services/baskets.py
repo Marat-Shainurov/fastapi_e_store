@@ -24,20 +24,39 @@ def create_basket_with_products(db: Session, products_to_add: list[int]) -> Bask
 
 
 # todo:
-#  1. check and configure the user-product deleting process
-#  2. Registration/email verification
+#  1. Registration/email verification
 
 
-def remove_products_from_basket(db: Session, basket_id: int, products_to_remove: list[int]):
+def append_products(db: Session, products_to_append: list, basket_id: int):
+    basket = db.query(Basket).filter_by().filter_by(id=basket_id).one_or_none()
+    if basket:
+        for p in products_to_append:
+            product = db.query(Product).filter_by(id=p).one_or_none()
+            if product:
+                basket.products.append(product)
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Product {p} not found")
+        db.commit()
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Basket {basket_id} not found")
+    return db.query(Basket).filter_by(id=basket_id).one()
+
+
+def delete_products_from_basket(db: Session, basket_id: int, products_to_remove: list[int]):
     basket = db.query(Basket).filter_by(id=basket_id).one_or_none()
     if basket:
         for p in products_to_remove:
             product = db.query(Product).filter_by(id=p).one_or_none()
-            if product:
+            if not product:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Product {p} not found")
+            if product and product in basket.products:
                 basket.products.remove(product)
             else:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Product with {p} id not found")
-    db.commit()
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail=f"Product {p} is not in the basket")
+        db.commit()
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Basket {basket_id} not found")
     return db.query(Basket).filter_by(id=basket_id).one()
 
 
