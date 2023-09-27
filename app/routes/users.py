@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
-from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate
+from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate, UserBasePut
 from app.services import add_user, get_current_active_user, get_users, put_user, destroy_user, create_access_token, \
     authenticate_user, get_user, patch_user
 from app.services.tokens import ACCESS_TOKEN_EXPIRES_MINUTES
@@ -37,9 +37,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @router.post("/", response_model=UserInDB, status_code=status.HTTP_201_CREATED)
-async def create_users(
-        user: UserCreate, current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)
-):
+async def create_users(user: UserCreate, db: Session = Depends(get_db)):
     new_user = add_user(db=db, user=user)
     return new_user
 
@@ -62,7 +60,7 @@ async def retrieve_user(username: str, current_user: UserInDB = Depends(get_curr
 
 
 @router.put("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
-async def update_user(username: str, user: UserBase, current_user: UserInDB = Depends(get_current_active_user),
+async def update_user(username: str, user: UserBasePut, current_user: UserInDB = Depends(get_current_active_user),
                       db: Session = Depends(get_db)):
     return put_user(db=db, username=username, user_to_update=user)
 

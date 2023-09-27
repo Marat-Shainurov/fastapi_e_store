@@ -8,9 +8,11 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.database.db import get_db
+from app.emails import get_verification_code, send_mail
 from app.models import User
-from app.schemas import UserCreate, TokenData, UserInDB, UserBase, UserBaseUpdate
-from app.services.tokens import get_password_hashed, ALGORITHM, SECRET_KEY
+from app.schemas import UserCreate, TokenData, UserInDB, UserBase, UserBaseUpdate, EmailSchema, UserBasePut
+from app.services import get_password_hashed
+from app.services.tokens import ALGORITHM, SECRET_KEY
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/token')
 
@@ -49,9 +51,10 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
 
 def add_user(db: Session, user: UserCreate) -> User:
     hashed_pwd = get_password_hashed(plain_password=user.password)
+    code = get_verification_code()
     new_user = User(
         name=user.name, last_name=user.last_name, username=user.username, email=user.email, phone=user.phone,
-        hashed_password=hashed_pwd, is_active=user.is_active
+        hashed_password=hashed_pwd, verification_code=code,
     )
     db.add(new_user)
     db.commit()
@@ -63,11 +66,11 @@ def get_users(db: Session, offset: int, limit: int) -> list[Type[User]]:
     return db.query(User).offset(offset).limit(limit).all()
 
 
-def put_user(db: Session, username: str, user_to_update: UserBase) -> Type[User]:
+def put_user(db: Session, username: str, user_to_update: UserBasePut) -> Type[User]:
     user = db.query(User).filter(User.username == username)
-    if user:
+    if user.one_or_none():
         user.update(values={**user_to_update.model_dump()})
-        updated_user = db.query(User).filter(User.username == username).first()
+        updated_user = db.query(User).filter_by(username=user_to_update.model_dump().get('username')).first()
         db.commit()
         db.refresh(updated_user)
         return updated_user
@@ -80,16 +83,16 @@ def put_user(db: Session, username: str, user_to_update: UserBase) -> Type[User]
 def patch_user(db: Session, username, user_to_update: UserBaseUpdate) -> Type[User]:
     stored_user = db.query(User).filter_by(username=username).one_or_none()
     if stored_user:
-        stored_data_schema = UserBase(**stored_user.__dict__)
+        stored_data_schema = UserBaseUpdate(**stored_user.__dict__)
     else:
-        stored_data_schema = UserBase()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User {username} not found")
     update_data = user_to_update.model_dump(exclude_unset=True)
     updated_user_schema = stored_data_schema.model_copy(update=update_data)
     user_to_update_db = db.query(User).filter_by(username=username)
     user_to_update_db.update(values={**updated_user_schema.model_dump()})
     db.commit()
-    db.refresh(user_to_update_db.one_or_none())
-    return db.query(User).filter_by(username=username).one_or_none()
+    db.refresh(user_to_update_db.one())
+    return db.query(User).filter_by(username=updated_user_schema.model_dump().get('username')).one()
 
 
 def destroy_user(db: Session, username: str) -> None:
