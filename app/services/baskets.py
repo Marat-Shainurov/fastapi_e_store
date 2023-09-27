@@ -23,10 +23,6 @@ def create_basket_with_products(db: Session, products_to_add: list[int]) -> Bask
     return new_basket
 
 
-# todo:
-#  1. Registration/email verification
-
-
 def append_products(db: Session, products_to_append: list, basket_id: int):
     basket = db.query(Basket).filter_by().filter_by(id=basket_id).one_or_none()
     if basket:

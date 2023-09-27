@@ -1,10 +1,12 @@
+from typing import Type
+
 from sqlalchemy.orm import Session
 
-from app.schemas import UserInDB
+from app.models import User
 from app.services import get_user, verify_password
 
 
-def authenticate_user(db: Session, username: str, password: str) -> UserInDB | bool:
+def authenticate_user(db: Session, username: str, password: str) -> Type[User] | bool:
     user = get_user(db, username)
     if not user:
         return False
