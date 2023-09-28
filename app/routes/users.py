@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
-from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate, UserBasePut
+from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate, UserBasePut, UserOutput
 from app.services import add_user, get_current_active_user, get_users, put_user, destroy_user, create_access_token, \
     authenticate_user, get_user, patch_user
 from app.services.tokens import ACCESS_TOKEN_EXPIRES_MINUTES
@@ -42,7 +42,7 @@ def create_users(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.get("/", response_model=list[UserInDB], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
 def read_users(offset: int = 0, limit: int = 100,
                current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return get_users(db=db, offset=offset, limit=limit)
@@ -53,19 +53,19 @@ def read_request_user(current_user: UserInDB = Depends(get_current_active_user))
     return current_user
 
 
-@router.get("/{username}", response_model=UserBase, status_code=status.HTTP_200_OK)
+@router.get("/{username}", response_model=UserOutput, status_code=status.HTTP_200_OK)
 def retrieve_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
                   db: Session = Depends(get_db)):
     return get_user(db=db, username=username)
 
 
-@router.put("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
+@router.put("/{username}", response_model=UserOutput, status_code=status.HTTP_200_OK)
 def update_user(username: str, user: UserBasePut, current_user: UserInDB = Depends(get_current_active_user),
                 db: Session = Depends(get_db)):
     return put_user(db=db, username=username, user_to_update=user)
 
 
-@router.patch("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
+@router.patch("/{username}", response_model=UserOutput, status_code=status.HTTP_200_OK)
 def partial_update_user(username: str, user: UserBaseUpdate, db: Session = Depends(get_db),
                         current_user: UserInDB = Depends(get_current_active_user), ):
     return patch_user(db=db, user_to_update=user, username=username)

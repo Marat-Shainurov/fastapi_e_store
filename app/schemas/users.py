@@ -45,6 +45,17 @@ class UserBaseUpdate(BaseModel):
     is_active: bool | None = None
 
 
+class UserOutput(BaseModel):
+    id: int
+    name: str
+    last_name: str
+    username: str
+    email: str
+    phone: str
+    is_active: bool
+    products: list[ProductInBasket]
+
+
 class UserInDB(UserBase):
     hashed_password: str
     id: int = Field(..., title="User id")
