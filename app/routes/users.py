@@ -4,11 +4,12 @@ from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from starlette.responses import JSONResponse
 
 from app.database.db import get_db
 from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate, UserBasePut, UserOutput
 from app.services import add_user, get_current_active_user, get_users, put_user, destroy_user, create_access_token, \
-    authenticate_user, get_user, patch_user
+    authenticate_user, get_user, patch_user, verify_email
 from app.services.tokens import ACCESS_TOKEN_EXPIRES_MINUTES
 
 router = APIRouter(
@@ -37,9 +38,15 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 
 
 @router.post("/", response_model=UserInDB, status_code=status.HTTP_201_CREATED)
-def create_users(user: UserCreate, db: Session = Depends(get_db)):
-    new_user = add_user(db=db, user=user)
+async def create_users(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = await add_user(db=db, user=user)
     return new_user
+
+
+@router.post("/{username}/verify-email")
+def verify_user_email(username: str, code: str, db: Session = Depends(get_db)):
+    result = verify_email(db=db, username=username, verification_code=code)
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": result})
 
 
 @router.get("/", response_model=list[UserOutput], status_code=status.HTTP_200_OK)

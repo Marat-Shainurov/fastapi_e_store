@@ -49,13 +49,35 @@ async def get_current_active_user(current_user: UserInDB = Depends(get_current_u
     return current_user
 
 
-def add_user(db: Session, user: UserCreate) -> User:
+def verify_email(db: Session, username: str, verification_code: str):
+    user = db.query(User).filter_by(username=username).one_or_none()
+    if user:
+        code_to_check_db = user.verification_code
+        if code_to_check_db == verification_code:
+            user.is_active = True
+            db.commit()
+            return 'You email is verified!\nThank you!'
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Invalid verification code!'
+            )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'User {username} not found!'
+        )
+
+
+async def add_user(db: Session, user: UserCreate):
     hashed_pwd = get_password_hashed(plain_password=user.password)
     code = get_verification_code()
     new_user = User(
         name=user.name, last_name=user.last_name, username=user.username, email=user.email, phone=user.phone,
         hashed_password=hashed_pwd, verification_code=code,
     )
+    email_schema = EmailSchema(email=[user.email])
+    await send_mail(email=email_schema, verification_code=code)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

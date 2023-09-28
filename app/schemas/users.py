@@ -41,7 +41,11 @@ class UserBaseUpdate(BaseModel):
     last_name: str | None = None
     username: str | None = None
     email: str | None = None
-    phone: str | None = None
+    phone: str | None = Field(
+        default=None,
+        title="Must start with '+7' and followed by 10 numbers",
+        pattern="^\+7[0-9]{10}$"
+    )
     is_active: bool | None = None
 
 
