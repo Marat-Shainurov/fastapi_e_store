@@ -20,7 +20,7 @@ router = APIRouter(
 
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_201_CREATED)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -37,41 +37,41 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @router.post("/", response_model=UserInDB, status_code=status.HTTP_201_CREATED)
-async def create_users(user: UserCreate, db: Session = Depends(get_db)):
+def create_users(user: UserCreate, db: Session = Depends(get_db)):
     new_user = add_user(db=db, user=user)
     return new_user
 
 
 @router.get("/", response_model=list[UserInDB], status_code=status.HTTP_200_OK)
-async def read_users(offset: int = 0, limit: int = 100,
-                     current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
+def read_users(offset: int = 0, limit: int = 100,
+               current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return get_users(db=db, offset=offset, limit=limit)
 
 
 @router.get("/current-user", status_code=status.HTTP_200_OK)
-async def read_request_user(current_user: UserInDB = Depends(get_current_active_user)):
+def read_request_user(current_user: UserInDB = Depends(get_current_active_user)):
     return current_user
 
 
 @router.get("/{username}", response_model=UserBase, status_code=status.HTTP_200_OK)
-async def retrieve_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
-                        db: Session = Depends(get_db)):
+def retrieve_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
+                  db: Session = Depends(get_db)):
     return get_user(db=db, username=username)
 
 
 @router.put("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
-async def update_user(username: str, user: UserBasePut, current_user: UserInDB = Depends(get_current_active_user),
-                      db: Session = Depends(get_db)):
+def update_user(username: str, user: UserBasePut, current_user: UserInDB = Depends(get_current_active_user),
+                db: Session = Depends(get_db)):
     return put_user(db=db, username=username, user_to_update=user)
 
 
 @router.patch("/{username}", response_model=UserInDB, status_code=status.HTTP_200_OK)
-async def partial_update_user(username: str, user: UserBaseUpdate, db: Session = Depends(get_db),
-                              current_user: UserInDB = Depends(get_current_active_user), ):
+def partial_update_user(username: str, user: UserBaseUpdate, db: Session = Depends(get_db),
+                        current_user: UserInDB = Depends(get_current_active_user), ):
     return patch_user(db=db, user_to_update=user, username=username)
 
 
 @router.delete("/{username}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
-                      db: Session = Depends(get_db)):
+def delete_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
+                db: Session = Depends(get_db)):
     return destroy_user(db=db, username=username)
