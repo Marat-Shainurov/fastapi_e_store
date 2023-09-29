@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database.db import get_db
 from app.schemas import UserInDB, BasketInDB
 from app.services import create_basket_with_products, delete_products_from_basket, destroy_basket, get_basket, \
-    get_baskets, append_products, get_current_active_user
+    get_baskets, append_products, get_current_active_user, get_basket_and_sum
 
 router = APIRouter(
     prefix="/baskets",
@@ -37,6 +37,12 @@ def remove_products_from_basket(
 def read_basket(basket_id: int, db: Session = Depends(get_db),
                 current_user: UserInDB = Depends(get_current_active_user)):
     return get_basket(db=db, basket_id=basket_id)
+
+
+@router.get("/{basket_id}/total-sum", status_code=status.HTTP_200_OK)
+def read_basket_with_total_sum(basket_id: int, db: Session = Depends(get_db),
+                               current_user: UserInDB = Depends(get_current_active_user)):
+    return get_basket_and_sum(db=db, basket_id=basket_id)
 
 
 @router.get("/", response_model=list[BasketInDB], status_code=status.HTTP_200_OK, description="Baskets list")

@@ -66,6 +66,21 @@ def get_basket(db: Session, basket_id: int) -> Type[Basket]:
     return basket
 
 
+def get_basket_and_sum(db: Session, basket_id: int) -> dict | HTTPException:
+    basket = db.query(Basket).filter_by(id=basket_id).one_or_none()
+    if basket:
+        total_sum = 0
+        products = basket.products
+        for product in products:
+            total_sum += product.price
+        return {"basket": basket, "total_sum": total_sum}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Basket {basket_id} not found!"
+        )
+
+
 def get_baskets(db: Session, offset: int, limit: int):
     baskets = db.query(Basket).offset(offset).limit(limit).all()
     return baskets if baskets else []
