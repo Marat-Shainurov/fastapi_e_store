@@ -69,7 +69,7 @@ class UserInDB(UserBase):
     verification_code: str | None = Field(default=None, title="Verification code")
     is_active: bool = Field(default=False, title="User is_active status")
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 

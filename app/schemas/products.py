@@ -26,10 +26,16 @@ class BasketInDB(BaseModel):
     id: int
     products: List[ProductInBasket]
 
+    class ConfigDict:
+        from_attributes = True
+
 
 class ProductInDb(ProductBase):
     id: int = Field(..., title="Product id")
     baskets: list[BasketInDB] = Field(default=[], title="Baskets the product in")
+
+    class ConfigDict:
+        from_attributes = True
 
 
 class ProductBaseUpdate(BaseModel):
