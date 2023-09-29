@@ -17,10 +17,43 @@ from app.services.tokens import ALGORITHM, SECRET_KEY
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/users/token')
 
 
-def get_user(db: Session, username: str) -> Type[User]:
-    user = db.query(models.User).filter(User.username == username).first()
+def get_user_by_username(db: Session, username: str) -> Type[User]:
+    user = db.query(models.User).filter(User.username == username).one_or_none()
     if user:
         return user
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"User '{username}' not found!"
+    )
+
+
+def get_user_by_email(db: Session, email: str):
+    user = db.query(User).filter_by(email=email).one_or_none()
+    if user:
+        return user
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"User with '{email}' email not found!"
+    )
+
+
+def get_user_by_phone(db: Session, phone: str):
+    user = db.query(User).filter_by(phone=phone).one_or_none()
+    if user:
+        return user
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"User with '{phone}' phone number not found!"
+    )
+
+
+def get_user(get_by: str, get_by_value: str, db: Session):
+    if get_by == 'username':
+        return get_user_by_username(db, get_by_value)
+    elif get_by == 'email':
+        return get_user_by_email(db, get_by_value)
+    else:
+        return get_user_by_phone(db, get_by_value)
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Type[User]:
@@ -37,7 +70,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(db=db, username=token_data.username)
+    user = get_user_by_username(db=db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user

@@ -1,3 +1,5 @@
+from enum import Enum
+
 from pydantic import BaseModel, Field
 
 from app.schemas import ProductInBasket
@@ -69,3 +71,10 @@ class UserInDB(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class GetUserBy(Enum):
+    username = 'username'
+    email = 'email'
+    phone = 'phone'
+

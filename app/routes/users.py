@@ -8,8 +8,9 @@ from starlette.responses import JSONResponse
 
 from app.database.db import get_db
 from app.schemas import UserCreate, UserInDB, Token, UserBase, UserBaseUpdate, UserBasePut, UserOutput
+from app.schemas.users import GetUserBy
 from app.services import add_user, get_current_active_user, get_users, put_user, destroy_user, create_access_token, \
-    authenticate_user, get_user, patch_user, verify_email
+    authenticate_user, patch_user, verify_email, get_user
 from app.services.tokens import ACCESS_TOKEN_EXPIRES_MINUTES
 
 router = APIRouter(
@@ -60,10 +61,11 @@ def read_request_user(current_user: UserInDB = Depends(get_current_active_user))
     return current_user
 
 
-@router.get("/{username}", response_model=UserOutput, status_code=status.HTTP_200_OK)
-def retrieve_user(username: str, current_user: UserInDB = Depends(get_current_active_user),
+@router.get("/{get_by_value}", response_model=UserOutput, status_code=status.HTTP_200_OK)
+def retrieve_user(get_user_by: GetUserBy, get_by_value: str,
+                  current_user: UserInDB = Depends(get_current_active_user),
                   db: Session = Depends(get_db)):
-    return get_user(db=db, username=username)
+    return get_user(db=db, get_by=get_user_by.value, get_by_value=get_by_value)
 
 
 @router.put("/{username}", response_model=UserOutput, status_code=status.HTTP_200_OK)
