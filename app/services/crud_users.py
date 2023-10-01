@@ -89,7 +89,7 @@ def verify_email(db: Session, username: str, verification_code: str):
         if code_to_check_db == verification_code:
             user.is_active = True
             db.commit()
-            return 'You email is verified!\nThank you!'
+            return 'You email is verified! Thank you!'
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

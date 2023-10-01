@@ -1,30 +1,41 @@
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from starlette.testclient import TestClient
+from fastapi import status
+from fastapi.testclient import TestClient
 
-from app.database.config import Base
+from app.database.config import TESTING, SessionLocal
+from app.models import User
 from main import app
 
-TEST_DATABASE_URL = "postgresql://postgres:Benzokolon1@localhost:5432/tests_fastapi_store"
-
-engine = create_engine(TEST_DATABASE_URL)
-
-Base.metadata.create_all(bind=engine)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-client = TestClient(app)
+user_data = {
+    "name": "Name",
+    "last_name": "Surname",
+    "username": "n_surname",
+    "email": "n_surname@gmail.com",
+    "phone": "+74157650846",
+    "password": "QWE123qwe123!"
+}
 
 
 @pytest.fixture(scope="function")
 def db_session():
-    connection = engine.connect()
-    transaction = connection.begin()
-    session = SessionLocal(bind=connection)
-    try:
-        yield session
-    finally:
-        transaction.rollback()
-        session.close()
-        connection.close()
+    if TESTING:
+        db = SessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+
+@pytest.fixture(scope='function')
+def user_fixture(db_session):
+    client = TestClient(app)
+    data = user_data
+    response_create = client.post("/users/", json=data)
+    assert response_create.status_code == status.HTTP_201_CREATED
+    assert response_create.json()['username'] == data['username']
+    assert response_create.json()['email'] == data['email']
+    user = db_session.query(User).filter_by(username=data['username']).one()
+    yield user
+
+    db_session.delete(user)
+    db_session.commit()
