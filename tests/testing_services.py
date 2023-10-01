@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi.testclient import TestClient
 
-from app.models import User
+from app.models import User, Product, Basket
 
 
 def verify_email_for_tests(client: TestClient, username: str, verification_code: str) -> None:
@@ -23,7 +23,7 @@ def get_auth_header_for_tests(client: TestClient, username: str, password: str) 
     return header
 
 
-def delete_user_for_tests(user: User, db_session: Session) -> None:
-    db_session.delete(user)
+def delete_object_for_tests(obj: User | Product | Basket, db_session: Session) -> None:
+    db_session.delete(obj)
     db_session.commit()
 

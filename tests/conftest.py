@@ -3,8 +3,9 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.database.config import TESTING, SessionLocal
-from app.models import User
+from app.models import User, Product
 from main import app
+from tests.testing_services import verify_email_for_tests, get_auth_header_for_tests
 
 user_data = {
     "name": "Name",
@@ -34,8 +35,33 @@ def user_fixture(db_session):
     assert response_create.status_code == status.HTTP_201_CREATED
     assert response_create.json()['username'] == data['username']
     assert response_create.json()['email'] == data['email']
+    verify_email_for_tests(
+        client=client, username=response_create.json()['username'],
+        verification_code=response_create.json()['verification_code'])
     user = db_session.query(User).filter_by(username=data['username']).one()
     yield user
-
     db_session.delete(user)
+    db_session.commit()
+
+
+product_data = {
+    "name": "Test",
+    "price": 1000
+}
+
+
+@pytest.fixture(scope='function')
+def product_fixture(db_session, user_fixture):
+    client = TestClient(app)
+    verify_email_for_tests(
+        client=client, username=user_fixture.username, verification_code=user_fixture.verification_code)
+    header = get_auth_header_for_tests(client=client, password=user_data['password'], username=user_fixture.username)
+    response = client.post("/products", headers=header, json=product_data)
+    assert response.json()['name'] == product_data['name']
+    assert response.json()['price'] == product_data['price']
+    assert response.json()['owner_id'] == user_fixture.id
+    product = db_session.query(Product).filter_by(name=response.json()['name']).first()
+    yield product
+
+    db_session.delete(product)
     db_session.commit()
