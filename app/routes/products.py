@@ -31,13 +31,13 @@ def retrieve_product(product_id: int, current_user: UserInDB = Depends(get_curre
     return get_product(db=db, product_id=product_id)
 
 
-@router.put("/{product_id}", response_model=ProductBase, status_code=status.HTTP_200_OK)
+@router.put("/{product_id}", response_model=ProductInDb, status_code=status.HTTP_200_OK)
 def update_product(product: ProductBasePut, product_id: int,
                    current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return put_product(product=product, product_id=product_id, db=db)
 
 
-@router.patch("/{product_id}", response_model=ProductBase, status_code=status.HTTP_200_OK)
+@router.patch("/{product_id}", response_model=ProductInDb, status_code=status.HTTP_200_OK)
 def partial_update_product(
         product: ProductBaseUpdate, product_id: int, current_user: UserInDB = Depends(get_current_active_user),
         db: Session = Depends(get_db)):

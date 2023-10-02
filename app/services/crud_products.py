@@ -58,9 +58,9 @@ def put_product(product: ProductBasePut, product_id: int, db: Session) -> Type[P
 def patch_product(product_id: int, product: ProductBaseUpdate, db: Session):
     stored_product = db.query(Product).filter_by(id=product_id).one_or_none()
     if stored_product is not None:
-        stored_data_schema = ProductBase(**stored_product.__dict__)
+        stored_data_schema = ProductBaseUpdate(**stored_product.__dict__)
     else:
-        stored_data_schema = ProductBase()
+        stored_data_schema = ProductBaseUpdate()
     update_data = product.model_dump(exclude_unset=True)
     updated_product_schema = stored_data_schema.model_copy(update=update_data)
     product_to_update_db = db.query(Product).filter_by(id=product_id)
