@@ -6,7 +6,7 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models import Product
-from app.schemas import ProductBase, UserInDB, ProductCreate, ProductBaseUpdate
+from app.schemas import ProductBase, UserInDB, ProductCreate, ProductBaseUpdate, ProductBasePut
 
 
 def add_product(db: Session, product: ProductCreate, current_user: UserInDB) -> Product:
@@ -39,10 +39,12 @@ def get_product(db: Session, product_id: int) -> Type[Product]:
     )
 
 
-def put_product(product: ProductBase, product_id: int, db: Session) -> Type[Product]:
+def put_product(product: ProductBasePut, product_id: int, db: Session) -> Type[Product]:
     product_to_update = db.query(Product).filter(Product.id == product_id)
     if product_to_update.first():
         product_to_update.update(values={**product.model_dump()})
+        curr_time = datetime.utcnow()
+        product_to_update.first().updated_at = curr_time
         db.commit()
         db.refresh(product_to_update.first())
         return product_to_update.first()
@@ -64,6 +66,8 @@ def patch_product(product_id: int, product: ProductBaseUpdate, db: Session):
     product_to_update_db = db.query(Product).filter_by(id=product_id)
     try:
         product_to_update_db.update(values={**updated_product_schema.model_dump()})
+        curr_time = datetime.utcnow()
+        product_to_update_db.first().updated_at = curr_time
     except Exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid input for update")
     db.commit()

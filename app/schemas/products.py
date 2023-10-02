@@ -41,7 +41,12 @@ class ProductInDb(ProductBase):
 class ProductBaseUpdate(BaseModel):
     name: str | None = None
     price: float | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
     owner_id: int | None = None
     is_active: bool | None = None
+
+
+class ProductBasePut(BaseModel):
+    name: str
+    price: float
+    owner_id: int
+    is_active: bool

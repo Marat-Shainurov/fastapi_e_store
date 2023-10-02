@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
-from app.schemas import UserInDB, ProductBase, ProductCreate, ProductInDb, ProductBaseUpdate
+from app.schemas import UserInDB, ProductBase, ProductCreate, ProductInDb, ProductBaseUpdate, ProductBasePut
 from app.services import (get_current_active_user, add_product, get_products, get_product, put_product, patch_product,
                           destroy_product)
 
@@ -32,7 +32,7 @@ def retrieve_product(product_id: int, current_user: UserInDB = Depends(get_curre
 
 
 @router.put("/{product_id}", response_model=ProductBase, status_code=status.HTTP_200_OK)
-def update_product(product: ProductBase, product_id: int,
+def update_product(product: ProductBasePut, product_id: int,
                    current_user: UserInDB = Depends(get_current_active_user), db: Session = Depends(get_db)):
     return put_product(product=product, product_id=product_id, db=db)
 
