@@ -15,9 +15,7 @@ from app.services.tokens import ACCESS_TOKEN_EXPIRES_MINUTES
 
 router = APIRouter(
     prefix='/users',
-    tags=['users'],
-    # dependencies=[Depends(get_token_header)],
-    # responses={404: {"description": "Not found"}}
+    tags=['users']
 )
 
 

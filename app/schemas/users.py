@@ -6,6 +6,7 @@ from app.schemas import ProductInBasket
 
 
 class UserBase(BaseModel):
+    """A base schema for users representation."""
     name: str = Field(..., title="User name")
     last_name: str = Field(..., title="User last name")
     username: str = Field(..., title="User username")
@@ -18,6 +19,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    """A schema for users creating. Extends the UserBase schema with the password field."""
     password: str = Field(
         ...,
         pattern="^[A-Z$%&!:].{7,}$",
@@ -26,6 +28,7 @@ class UserCreate(UserBase):
 
 
 class UserBasePut(BaseModel):
+    """A schema for the put method. Requires all the fields set in the schema."""
     name: str
     last_name: str
     username: str
@@ -39,6 +42,7 @@ class UserBasePut(BaseModel):
 
 
 class UserBaseUpdate(BaseModel):
+    """A schema for the patch method. Allows to set some of the fields to update."""
     name: str | None = None
     last_name: str | None = None
     username: str | None = None
@@ -52,6 +56,7 @@ class UserBaseUpdate(BaseModel):
 
 
 class UserOutput(BaseModel):
+    """A schema for the response_model option in the users' routes."""
     id: int
     name: str
     last_name: str
@@ -63,6 +68,7 @@ class UserOutput(BaseModel):
 
 
 class UserInDB(UserBase):
+    """A broader full version of the users' schema."""
     hashed_password: str
     id: int = Field(..., title="User id")
     products: list[ProductInBasket] = Field(default=[], title="User's products")
@@ -74,6 +80,7 @@ class UserInDB(UserBase):
 
 
 class GetUserBy(Enum):
+    """An Unum class for the get_user_by query list. Sets the field to get a user by."""
     username = 'username'
     email = 'email'
     phone = 'phone'

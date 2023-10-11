@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
-from app.schemas import UserInDB, ProductBase, ProductCreate, ProductInDb, ProductBaseUpdate, ProductBasePut
+from app.schemas import UserInDB, ProductCreate, ProductInDb, ProductBaseUpdate, ProductBasePut
 from app.services import (get_current_active_user, add_product, get_products, get_product, put_product, patch_product,
                           destroy_product)
 
