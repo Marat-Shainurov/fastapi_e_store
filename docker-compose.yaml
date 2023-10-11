@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+
+  db_fastapi_store:
+    image: postgres:14-alpine
+    container_name: db_fastapi_store_container
+    environment:
+      PGDATA: /var/lib/postgresql/pgdata
+      POSTGRES_DB: fastapi_store
+      POSTGRES_PASSWORD: fastapi_store_password
+    volumes:
+      - postgres_store_data:/var/lib/postgresql/pgdata
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app_fastapi_store:
+    build: .
+    container_name: fastapi_store_container
+    ports:
+      - '8000:8000'
+    depends_on:
+      db_fastapi_store:
+        condition: service_healthy
+    volumes:
+      - ./.env:/code/.env
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_store_data:
