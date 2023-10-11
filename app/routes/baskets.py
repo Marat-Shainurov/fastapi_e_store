@@ -26,7 +26,7 @@ def add_products_to_basket(basket_id: int, db: Session = Depends(get_db),
     return append_products(db=db, products_to_append=products, basket_id=basket_id)
 
 
-@router.patch("{basket_id}/remove-products", response_model=BasketInDB)
+@router.patch("/{basket_id}/remove-products", response_model=BasketInDB, status_code=status.HTTP_200_OK)
 def remove_products_from_basket(
         basket_id: int, products: list[int] = Query(..., description='Products to remove from the basket'),
         db: Session = Depends(get_db), current_user: UserInDB = Depends(get_current_active_user)):

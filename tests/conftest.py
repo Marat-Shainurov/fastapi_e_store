@@ -3,9 +3,9 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.database.config import TESTING, SessionLocal
-from app.models import User, Product
+from app.models import User, Product, Basket
 from main import app
-from tests.testing_services import verify_email_for_tests, get_auth_header_for_tests
+from tests.testing_services import verify_email_for_tests, get_auth_header_for_tests, delete_object_for_tests
 
 user_data = {
     "name": "Name",
@@ -53,8 +53,6 @@ product_data = {
 @pytest.fixture(scope='function')
 def product_fixture(db_session, user_fixture):
     client = TestClient(app)
-    verify_email_for_tests(
-        client=client, username=user_fixture.username, verification_code=user_fixture.verification_code)
     header = get_auth_header_for_tests(client=client, password=user_data['password'], username=user_fixture.username)
     response = client.post("/products", headers=header, json=product_data)
     assert response.json()['name'] == product_data['name']
@@ -65,3 +63,34 @@ def product_fixture(db_session, user_fixture):
 
     db_session.delete(product)
     db_session.commit()
+
+
+@pytest.fixture(scope='function')
+def basket_fixture(db_session, user_fixture):
+    client = TestClient(app)
+    header = get_auth_header_for_tests(client=client, username=user_fixture.username, password=user_data['password'])
+    product_data_for_basket = {
+        "name": "Product 1",
+        "price": 1000
+    }
+    response_product_1 = client.post("/products", headers=header, json=product_data_for_basket)
+    assert response_product_1.status_code == status.HTTP_201_CREATED
+
+    product_data_2 = product_data_for_basket.copy()
+    product_data_2['name'] = 'Product 2'
+    response_product_2 = client.post("/products", headers=header, json=product_data_2)
+    assert response_product_2.status_code == status.HTTP_201_CREATED
+
+    product_1 = db_session.query(Product).filter_by(name=response_product_1.json()['name']).first()
+    product_2 = db_session.query(Product).filter_by(name=response_product_2.json()['name']).first()
+
+    response_basket = client.post(
+        f"/baskets/?products={product_1.id}&products={product_2.id}", headers=header)
+    basket = db_session.query(Basket).filter_by(id=response_basket.json()['id']).one_or_none()
+    assert response_basket.status_code == status.HTTP_201_CREATED
+
+    yield basket
+
+    delete_object_for_tests(obj=product_1, db_session=db_session)
+    delete_object_for_tests(obj=product_2, db_session=db_session)
+    delete_object_for_tests(obj=basket, db_session=db_session)
