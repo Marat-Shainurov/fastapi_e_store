@@ -16,6 +16,10 @@ router = APIRouter(
 def create_basket(products: list[int] = Query(..., description='Products to add'),
                   db: Session = Depends(get_db),
                   current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint creates a **new basket**.
+    - **Authorization** required.
+    """
     return create_basket_with_products(db=db, products_to_add=products)
 
 
@@ -23,6 +27,10 @@ def create_basket(products: list[int] = Query(..., description='Products to add'
 def add_products_to_basket(basket_id: int, db: Session = Depends(get_db),
                            products: list[int] = Query(..., description="Products to add to the basket"),
                            current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint **adds products to a basket** by the basket's id.
+    - **Authorization** required.
+    """
     return append_products(db=db, products_to_append=products, basket_id=basket_id)
 
 
@@ -30,28 +38,48 @@ def add_products_to_basket(basket_id: int, db: Session = Depends(get_db),
 def remove_products_from_basket(
         basket_id: int, products: list[int] = Query(..., description='Products to remove from the basket'),
         db: Session = Depends(get_db), current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint **removes products from a basket** by the basket's id.
+    - **Authorization** required.
+    """
     return delete_products_from_basket(db=db, products_to_remove=products, basket_id=basket_id)
 
 
 @router.get("/{basket_id}", response_model=BasketInDB, status_code=status.HTTP_200_OK)
 def read_basket(basket_id: int, db: Session = Depends(get_db),
                 current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint returns a stored ** basket by the basket's id**.
+    - **Authorization** required.
+    """
     return get_basket(db=db, basket_id=basket_id)
 
 
 @router.get("/{basket_id}/total-sum", status_code=status.HTTP_200_OK)
 def read_basket_with_total_sum(basket_id: int, db: Session = Depends(get_db),
                                current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint returns a stored ** basket by the basket's id** and its **total_sum**.
+    - **Authorization** required.
+    """
     return get_basket_and_sum(db=db, basket_id=basket_id)
 
 
 @router.get("/", response_model=list[BasketInDB], status_code=status.HTTP_200_OK, description="Baskets list")
 def read_baskets(offset: int = 0, limit: int = 100,
                  db: Session = Depends(get_db), current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint returns  **a list of stored baskets**.
+    - **Authorization** required.
+    """
     return get_baskets(db=db, offset=offset, limit=limit)
 
 
 @router.delete("/{basket_id}", status_code=status.HTTP_204_NO_CONTENT, description="Basket id")
 def delete_basket(basket_id: int, db: Session = Depends(get_db),
                   current_user: UserInDB = Depends(get_current_active_user)):
+    """
+    - Endpoint **deletes a basket by the basket's id**.
+    - **Authorization** required.
+    """
     return destroy_basket(db=db, basket_id=basket_id)

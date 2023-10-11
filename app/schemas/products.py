@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 class ProductCreate(BaseModel):
     """A schema for creating new products, with 2 compulsory fields."""
-    name: str = Field(..., title="Product name")
+    name: str = Field(..., title="Product name", example='Product name')
     price: float = Field(..., title="Product price")
 
 

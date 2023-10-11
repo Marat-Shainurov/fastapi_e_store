@@ -7,14 +7,15 @@ from app.schemas import ProductInBasket
 
 class UserBase(BaseModel):
     """A base schema for users representation."""
-    name: str = Field(..., title="User name")
-    last_name: str = Field(..., title="User last name")
-    username: str = Field(..., title="User username")
-    email: str = Field(..., title="User email")
+    name: str = Field(..., title="User name", example="User name")
+    last_name: str = Field(..., title="User last name", example="User last name")
+    username: str = Field(..., title="User username", example="unique username")
+    email: str = Field(..., title="User email", example="unique email")
     phone: str = Field(
         ...,
         title="Must start with '+7' and followed by 10 numbers",
-        pattern="^\+7[0-9]{10}$"
+        pattern="^\+7[0-9]{10}$",
+        example='unique phone number. Must start with "+7" and followed by 10 numbers'
     )
 
 
@@ -23,7 +24,8 @@ class UserCreate(UserBase):
     password: str = Field(
         ...,
         pattern="^[A-Z$%&!:].{7,}$",
-        title="Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:)."
+        title="Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:).",
+        example="Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:)."
     )
 
 
