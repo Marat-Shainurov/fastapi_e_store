@@ -1,21 +1,21 @@
+import re
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.schemas import ProductInBasket
 
 
 class UserBase(BaseModel):
     """A base schema for users representation."""
-    name: str = Field(..., title="User name", example="User name")
-    last_name: str = Field(..., title="User last name", example="User last name")
-    username: str = Field(..., title="User username", example="unique username")
-    email: str = Field(..., title="User email", example="unique email")
+    name: str = Field(..., title="User name", examples=['User name'],)
+    last_name: str = Field(..., title="User last name", examples=['User last name'])
+    username: str = Field(..., title="User username", examples=['Unique username'])
+    email: str = Field(..., title="User email", examples=["Unique email"])
     phone: str = Field(
         ...,
-        title="Must start with '+7' and followed by 10 numbers",
         pattern="^\+7[0-9]{10}$",
-        example='unique phone number. Must start with "+7" and followed by 10 numbers'
+        examples=["Unique phone number. Must start with '+7' and followed by 10 numbers"]
     )
 
 
@@ -23,10 +23,20 @@ class UserCreate(UserBase):
     """A schema for users creating. Extends the UserBase schema with the password field."""
     password: str = Field(
         ...,
-        pattern="^[A-Z$%&!:].{7,}$",
-        title="Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:).",
-        example="Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:)."
+        examples=['rtyUiop&'],
+        description=
+        'Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:).',
     )
+
+    @field_validator("password")
+    def validate_password(cls, value):
+        if len(value) < 8:
+            raise ValueError("Password must be longer than 8 characters")
+        if not any(char.isupper() for char in value):
+            raise ValueError("Password must contain at least one uppercase letter")
+        if not re.search(r'[$%&!:.]', value):
+            raise ValueError("Password must contain at least one of the symbols $%&!:.")
+        return value
 
 
 class UserBasePut(BaseModel):
@@ -86,4 +96,3 @@ class GetUserBy(Enum):
     username = 'username'
     email = 'email'
     phone = 'phone'
-
