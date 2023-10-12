@@ -10,5 +10,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """A schema to store data for tokens encoding/decoding."""
     username: str | None = None
-
-

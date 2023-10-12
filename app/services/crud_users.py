@@ -10,7 +10,7 @@ from app import models
 from app.database.db import get_db
 from app.emails import get_verification_code, send_mail
 from app.models import User
-from app.schemas import UserCreate, TokenData, UserInDB, UserBase, UserBaseUpdate, EmailSchema, UserBasePut
+from app.schemas import UserCreate, TokenData, UserInDB, UserBaseUpdate, EmailSchema, UserBasePut
 from app.services import get_password_hashed
 from app.services.tokens import ALGORITHM, SECRET_KEY
 

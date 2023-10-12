@@ -1,5 +1,4 @@
 from fastapi_mail import MessageSchema, MessageType, FastMail
-from starlette.responses import JSONResponse
 
 from app.schemas import EmailSchema
 
@@ -16,16 +15,13 @@ conf = ConnectionConfig(
     MAIL_STARTTLS=False,
     MAIL_SSL_TLS=True,
     USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True
-)
+    VALIDATE_CERTS=True)
 
-html = """
-<p>
-Hello, dear friend! 
-Here is your verification code {0}. 
-Please, use it to verify you email. 
-Thanks!
-</p> 
+html = """\n
+<p>Hello, dear friend! \n
+Here is your verification code {0}. \n
+Please, use it to verify you email. \n
+Thanks!</p>\n
 """
 
 
@@ -34,8 +30,7 @@ async def send_mail(email: EmailSchema, verification_code):
         subject="Email verification",
         recipients=email.model_dump().get("email"),
         body=html.format(verification_code),
-        subtype=MessageType.html
-    )
+        subtype=MessageType.html)
     fm = FastMail(conf)
     await fm.send_message(message)
 

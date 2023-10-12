@@ -26,4 +26,3 @@ def get_auth_header_for_tests(client: TestClient, username: str, password: str) 
 def delete_object_for_tests(obj: User | Product | Basket, db_session: Session) -> None:
     db_session.delete(obj)
     db_session.commit()
-

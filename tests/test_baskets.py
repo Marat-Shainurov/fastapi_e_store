@@ -1,6 +1,3 @@
-# todo: add docker-compose
-# todo: add readme.md
-
 from fastapi import status
 from fastapi.testclient import TestClient
 

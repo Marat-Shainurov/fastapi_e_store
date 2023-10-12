@@ -8,25 +8,24 @@ from app.schemas import ProductInBasket
 
 class UserBase(BaseModel):
     """A base schema for users representation."""
-    name: str = Field(..., title="User name", examples=['User name'],)
+    name: str = Field(..., title="User name", examples=['User name'], )
     last_name: str = Field(..., title="User last name", examples=['User last name'])
     username: str = Field(..., title="User username", examples=['Unique username'])
     email: str = Field(..., title="User email", examples=["Unique email"])
     phone: str = Field(
         ...,
-        pattern="^\+7[0-9]{10}$",
-        examples=["Unique phone number. Must start with '+7' and followed by 10 numbers"]
-    )
+        pattern=r"^\+7[0-9]{10}$",
+        examples=[r"Unique phone number. Must start with +7 and followed by 10 numbers"])
 
 
 class UserCreate(UserBase):
-    """A schema for users creating. Extends the UserBase schema with the password field."""
+    """
+    A schema for users creating. Extends the UserBase schema with the password field.
+    """
     password: str = Field(
         ...,
         examples=['rtyUiop&'],
-        description=
-        'Must be longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:).',
-    )
+        description='Longer than 8 symbols (latin letters, at least one uppercase, at least one symbol from $%&!:).')
 
     @field_validator("password")
     def validate_password(cls, value):
@@ -47,8 +46,8 @@ class UserBasePut(BaseModel):
     email: str
     phone: str = Field(
         ...,
-        title="Must start with '+7' and followed by 10 numbers",
-        pattern="^\+7[0-9]{10}$"
+        title=r"Must start with +7 and followed by 10 numbers",
+        pattern=r"^\+7[0-9]{10}$"
     )
     is_active: bool
 
