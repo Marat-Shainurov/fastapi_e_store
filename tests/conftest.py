@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from app.database.config import TESTING, SessionLocal
+from app.database.config import SessionLocal
 from app.models import User, Product, Basket
 from main import app
 from tests.testing_services import verify_email_for_tests, get_auth_header_for_tests, delete_object_for_tests
