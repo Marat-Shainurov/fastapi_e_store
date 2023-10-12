@@ -31,6 +31,7 @@ The project is a backend part of the **e-store service for authorized users**.\
 
 # Testing
 All the endpoints are covered by pytest tests in /tests/test_main.py
+Total coverage - 95%.
 
 # Security
 CORSMiddleware settings are added to the app in main.py.

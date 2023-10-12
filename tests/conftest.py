@@ -19,12 +19,11 @@ user_data = {
 
 @pytest.fixture(scope="function")
 def db_session():
-    if TESTING:
-        db = SessionLocal()
-        try:
-            yield db
-        finally:
-            db.close()
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture(scope='function')
