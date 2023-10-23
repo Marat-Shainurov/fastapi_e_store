@@ -1,7 +1,7 @@
 # General description.
 _'fastapi_store_api'_ is a fastapi project.\
 The project is a backend part of the **e-store service for authorized users**.
-
+Main stack: Fastapi, Postgresql, SQLAlchemy, Alembic, Pydantic, pytest.
 
 # Install and usage
 1. Clone the project https://github.com/Marat-Shainurov/fastapi_store in your IDE.
